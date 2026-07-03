@@ -1,0 +1,58 @@
+import json
+import os
+
+STORAGE_FILE = "registro_asistencias.json"
+
+def get_stored_records():
+    if not os.path.exists(STORAGE_FILE):
+        return []
+    try:
+        with open(STORAGE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print("Error al leer archivo:", e)
+        return []
+
+def save_stored_records(records):
+    with open(STORAGE_FILE, "w", encoding="utf-8") as f:
+        json.dump(records, f, ensure_ascii=False, indent=2)
+
+def render_records():
+    records = get_stored_records()
+    if not records:
+        print("No hay registros aún. Ingresa tus datos.")
+        return
+    print(f"Se han guardado {len(records)} registro(s).")
+    for r in records:
+        print(f"{r['nombre']} | {r['curso']} | {r['fecha']} | {r['estado']}")
+
+def add_record(nombre, curso, fecha, estado):
+    if not nombre or not curso or not fecha or not estado:
+        print("Completa todos los campos antes de guardar.")
+        return
+    records = get_stored_records()
+    records.append({
+        "nombre": nombre,
+        "curso": curso,
+        "fecha": fecha,
+        "estado": estado
+    })
+    save_stored_records(records)
+    print("Registro guardado correctamente.")
+    render_records()
+
+# Ejemplo de uso interactivo
+if __name__ == "__main__":
+    render_records()
+    while True:
+        print("\n--- Nuevo registro ---")
+        nombre = input("Nombre: ").strip()
+        curso = input("Curso: ").strip()
+        fecha = input("Fecha (YYYY-MM-DD): ").strip()
+        estado = input("Estado (Presente/Ausente): ").strip()
+
+        add_record(nombre, curso, fecha, estado)
+
+        cont = input("¿Deseas agregar otro registro? (s/n): ").lower()
+        if cont != "s":
+            break
